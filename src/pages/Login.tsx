@@ -7,26 +7,56 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/components/ui/use-toast";
 import { LogIn, Mail, Lock, GraduationCap } from "lucide-react";
+import { supabase } from "@/lib/supabaseClient";
+import { useNavigate } from "react-router-dom";
+
 
 export const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    
-    // Simulate login
-    setTimeout(() => {
-      setIsLoading(false);
-      toast({
-        title: "Login successful!",
-        description: "Welcome back to EssayAlign",
-      });
-    }, 1500);
-  };
+  // const handleLogin = async (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   setIsLoading(true);
+  //   // Simulate login
+  //   setTimeout(() => {
+  //     setIsLoading(false);
+  //     toast({
+  //       title: "Login successful!",
+  //       description: "Welcome back to EssayAlign",
+  //     });
+  //   }, 1500);
+  // };
+const handleLogin = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setIsLoading(true);
+
+  const { error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
+
+  setIsLoading(false);
+
+  if (error) {
+    toast({
+      title: "Login failed",
+      description: error.message,
+      variant: "destructive",
+    });
+    return;
+  }
+
+  toast({
+    title: "Login successful!",
+    description: "Welcome back to EssayAlign",
+  });
+
+  navigate("/upload"); // or wherever you want to go next
+};
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-muted/30 to-background py-12 px-4">

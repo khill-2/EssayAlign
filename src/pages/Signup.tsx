@@ -8,8 +8,11 @@ import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/components/ui/use-toast";
 import { UserPlus, Mail, Lock, User, GraduationCap } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/lib/supabaseClient";
 
 export const Signup = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -25,37 +28,53 @@ export const Signup = () => {
   };
 
   const handleSignup = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (formData.password !== formData.confirmPassword) {
-      toast({
-        title: "Password mismatch",
-        description: "Passwords do not match",
-        variant: "destructive",
-      });
-      return;
-    }
+  e.preventDefault();
 
-    if (!formData.agreeToTerms) {
-      toast({
-        title: "Terms required",
-        description: "Please agree to the terms and conditions",
-        variant: "destructive",
-      });
-      return;
-    }
+  if (formData.password !== formData.confirmPassword) {
+    toast({
+      title: "Password mismatch",
+      description: "Passwords do not match",
+      variant: "destructive",
+    });
+    return;
+  }
 
-    setIsLoading(true);
-    
-    // Simulate signup
-    setTimeout(() => {
-      setIsLoading(false);
-      toast({
-        title: "Account created!",
-        description: "Welcome to EssayAlign! Please check your email to verify your account.",
-      });
-    }, 1500);
-  };
+  if (!formData.agreeToTerms) {
+    toast({
+      title: "Terms required",
+      description: "Please agree to the terms and conditions",
+      variant: "destructive",
+    });
+    return;
+  }
+
+  setIsLoading(true);
+
+  const { data, error } = await supabase.auth.signUp({
+    email: formData.email,
+    password: formData.password,
+    options: {
+      data: {
+        name: formData.name,
+      },
+    },
+  });
+
+  setIsLoading(false);
+
+  if (error) {
+    toast({
+      title: "Signup failed",
+      description: error.message,
+      variant: "destructive",
+    });
+  } else {
+    toast({
+      title: "Account created!",
+      description: "Check your email to verify your account.",
+    });
+  }
+};
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-muted/30 to-background py-12 px-4">
