@@ -12,39 +12,17 @@ app.use(cors());
 app.use(express.json());
 
 // OpenAI setup
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
+// const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const openai = new OpenAI({ 
+  apiKey: process.env.OPENROUTER_API_KEY,
+  baseURL: 'https://openrouter.ai/api/v1'
+});
 // Supabase setup (server-side)
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
-// POST /analyze-essay
-// app.post('/analyze-essay', async (req, res) => {
-//   const { essay, college, user_id } = req.body;
-
-//   const prompt = `Analyze this college essay for how well it aligns with ${college.name}'s mission: "${college.mission}"\n\nEssay:\n${essay}`;
-
-//   const result = await openai.chat.completions.create({
-//     model: 'gpt-3.5-turbo',
-//     messages: [{ role: 'user', content: prompt }],
-//   });
-
-//   const feedback = result.choices[0].message.content;
-
-//   const { data, error } = await supabase.from('essays').insert({
-//     user_id,
-//     college_name: college.name,
-//     content: essay,
-//     feedback,
-//     created_at: new Date(),
-//   });
-
-//   if (error) return res.status(500).json({ error: error.message });
-
-//   res.json({ feedback, saved: true });
-// });
 app.post('/analyze-essay', async (req, res) => {
   try {
     const { essay, college, user_id } = req.body;
@@ -52,7 +30,7 @@ app.post('/analyze-essay', async (req, res) => {
     const prompt = `Analyze this college essay for how well it aligns with ${college.name}'s mission: "${college.mission}"\n\nEssay:\n${essay}`;
 
     const result = await openai.chat.completions.create({
-      model: 'gpt-3.5-turbo',
+      model: 'mistralai/mistral-7b-instruct',
       messages: [{ role: 'user', content: prompt }],
     });
 

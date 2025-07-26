@@ -115,7 +115,7 @@ const handleAnalyze = async () => {
         user_id: user.id,
         college: {
           name: selectedCollege,
-          mission: "The mission of this college will go here temporarily." // Replace later dynamically
+          mission: "The mission of this college will go here temporarily." 
         }
       }),
     });
@@ -124,14 +124,12 @@ const handleAnalyze = async () => {
 
     if (!res.ok) throw new Error(json.error || "Analysis failed");
 
-    setFeedback(json.feedback); // ✅ Save feedback to show in UI
+    setFeedback(json.feedback);
 
     toast({
       title: "Analysis Complete!",
       description: "Your essay was successfully analyzed.",
     });
-
-    // navigate("/dashboard"); // You can delay or skip navigation if you want to show results first
 
   } catch (err: any) {
     toast({
@@ -257,6 +255,17 @@ const handleAnalyze = async () => {
                 </Button>
               </CardContent>
             </Card>
+
+            {feedback && (
+  <Card className="mt-6">
+    <CardHeader>
+      <CardTitle>AI Feedback</CardTitle>
+    </CardHeader>
+    <CardContent>
+      <p className="whitespace-pre-line">{feedback}</p>
+    </CardContent>
+  </Card>
+)}
           </div>
 
           {/* Sidebar */}
