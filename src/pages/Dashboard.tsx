@@ -8,6 +8,9 @@ import { supabase } from "@/lib/supabaseClient";
 
 
 export const Dashboard = () => {
+  const [totalEssays, setTotalEssays] = useState(0);
+  const [averageScore, setAverageScore] = useState(0);
+  const [uniqueColleges, setUniqueColleges] = useState(0);
   const [essays, setEssays] = useState<any[]>([]);
 
   useEffect(() => {
@@ -26,6 +29,34 @@ export const Dashboard = () => {
     };
 
     fetchEssays();
+  }, []);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) return;
+
+      const { data: essays, error } = await supabase
+        .from("essays")
+        .select("score, college_name")
+        .eq("user_id", user.id);
+
+      if (error || !essays) return;
+
+      const scores = essays.map((e) => Number(e.score)).filter((s) => !isNaN(s));
+      const avg = scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : 0;
+
+      const unique = new Set(essays.map((e) => e.college_name)).size;
+
+      setTotalEssays(essays.length);
+      setAverageScore(Number(avg.toFixed(1)));
+      setUniqueColleges(unique);
+    };
+
+    fetchStats();
   }, []);
 
 
@@ -69,10 +100,7 @@ export const Dashboard = () => {
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">12</div>
-            <p className="text-xs text-muted-foreground">
-              +2 from last month
-            </p>
+            <div className="text-2xl font-bold">{totalEssays}</div>
           </CardContent>
         </Card>
 
@@ -82,22 +110,18 @@ export const Dashboard = () => {
             <BarChart3 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">78.5</div>
-            <p className="text-xs text-muted-foreground">
-              +5.2% from last analysis
-            </p>
+            <div className="text-2xl font-bold">{averageScore}</div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Colleges Targeted</CardTitle>
+            <CardTitle className="text-sm font-medium">Unique Colleges</CardTitle>
             <Target className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">8</div>
+            <div className="text-2xl font-bold">{uniqueColleges}</div>
             <p className="text-xs text-muted-foreground">
-              Across 6 different states
             </p>
           </CardContent>
         </Card>
