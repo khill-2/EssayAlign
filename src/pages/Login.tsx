@@ -18,45 +18,33 @@ export const Login = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  // const handleLogin = async (e: React.FormEvent) => {
-  //   e.preventDefault();
-  //   setIsLoading(true);
-  //   // Simulate login
-  //   setTimeout(() => {
-  //     setIsLoading(false);
-  //     toast({
-  //       title: "Login successful!",
-  //       description: "Welcome back to EssayAlign",
-  //     });
-  //   }, 1500);
-  // };
-const handleLogin = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setIsLoading(true);
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
 
-  const { error } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-  });
-
-  setIsLoading(false);
-
-  if (error) {
-    toast({
-      title: "Login failed",
-      description: error.message,
-      variant: "destructive",
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
     });
-    return;
-  }
 
-  toast({
-    title: "Login successful!",
-    description: "Welcome back to EssayAlign",
-  });
+    setIsLoading(false);
 
-  navigate("/upload"); // or wherever you want to go next
-};
+    if (error) {
+      toast({
+        title: "Login failed",
+        description: error.message,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    toast({
+      title: "Login successful!",
+      description: "Welcome back to EssayAlign",
+    });
+
+    navigate("/upload"); // or wherever you want to go next
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-muted/30 to-background py-12 px-4">
@@ -91,7 +79,7 @@ const handleLogin = async (e: React.FormEvent) => {
                   />
                 </div>
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
                 <div className="relative">
@@ -114,9 +102,9 @@ const handleLogin = async (e: React.FormEvent) => {
                 </Link>
               </div>
 
-              <Button 
-                type="submit" 
-                className="w-full" 
+              <Button
+                type="submit"
+                className="w-full"
                 disabled={isLoading}
               >
                 {isLoading ? (

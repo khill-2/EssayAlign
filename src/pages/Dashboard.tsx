@@ -3,38 +3,36 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
 import { Plus, FileText, BarChart3, Calendar, Target, TrendingUp } from "lucide-react";
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabaseClient";
+
 
 export const Dashboard = () => {
-  // Mock data for demonstration
-  const recentEssays = [
-    {
-      id: 1,
-      title: "Why Stanford Essay",
-      college: "Stanford University",
-      score: 85,
-      status: "analyzed",
-      date: "2 days ago",
-      feedback: "Strong mission alignment, consider adding more personal experiences"
-    },
-    {
-      id: 2,
-      title: "MIT Personal Statement",
-      college: "MIT",
-      score: 72,
-      status: "analyzed",
-      date: "1 week ago",
-      feedback: "Good technical focus, needs more values demonstration"
-    },
-    {
-      id: 3,
-      title: "Harvard Supplement",
-      college: "Harvard University",
-      score: 0,
-      status: "pending",
-      date: "Processing...",
-      feedback: "Analysis in progress"
-    }
-  ];
+  const [essays, setEssays] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchEssays = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from("essays")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        console.error("Error fetching essays:", error);
+      } else {
+        setEssays(data);
+      }
+    };
+
+    fetchEssays();
+  }, []);
 
   const getScoreColor = (score: number) => {
     if (score >= 80) return "bg-success";
@@ -42,10 +40,12 @@ export const Dashboard = () => {
     return "bg-destructive";
   };
 
-  const getStatusBadge = (status: string) => {
-    if (status === "analyzed") return <Badge variant="secondary">Analyzed</Badge>;
-    if (status === "pending") return <Badge variant="outline">Processing</Badge>;
-    return <Badge variant="destructive">Error</Badge>;
+  const getStatusBadge = (essay: any) => {
+    if (essay.score && Number(essay.score) > 0) {
+      return <Badge variant="secondary">Analyzed</Badge>;
+    } else {
+      return <Badge variant="outline">Processing</Badge>;
+    }
   };
 
   return (
@@ -80,7 +80,7 @@ export const Dashboard = () => {
             </p>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Average Score</CardTitle>
@@ -93,7 +93,7 @@ export const Dashboard = () => {
             </p>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Colleges Targeted</CardTitle>
@@ -118,7 +118,7 @@ export const Dashboard = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {recentEssays.map((essay) => (
+            {essays.map((essay) => (
               <div
                 key={essay.id}
                 className="flex flex-col lg:flex-row lg:items-center gap-4 p-4 border border-border rounded-lg hover:bg-muted/50 transition-colors"
@@ -126,7 +126,7 @@ export const Dashboard = () => {
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">
                     <h3 className="font-semibold">{essay.title}</h3>
-                    {getStatusBadge(essay.status)}
+                    {getStatusBadge(essay)}
                   </div>
                   <p className="text-sm text-muted-foreground mb-1">
                     Target: {essay.college}
@@ -135,7 +135,7 @@ export const Dashboard = () => {
                     {essay.feedback}
                   </p>
                 </div>
-                
+
                 <div className="flex items-center gap-4">
                   {essay.score > 0 && (
                     <div className="text-center">
@@ -145,14 +145,14 @@ export const Dashboard = () => {
                       <p className="text-xs text-muted-foreground mt-1">Score</p>
                     </div>
                   )}
-                  
+
                   <div className="text-center">
                     <p className="text-sm font-medium">{essay.date}</p>
                     <div className="flex gap-2 mt-2">
                       <Button variant="outline" size="sm">
                         View
                       </Button>
-                      {essay.status === "analyzed" && (
+                      {essay === "analyzed" && (
                         <Button variant="ghost" size="sm">
                           <TrendingUp className="h-4 w-4" />
                         </Button>
@@ -163,8 +163,8 @@ export const Dashboard = () => {
               </div>
             ))}
           </div>
-          
-          {recentEssays.length === 0 && (
+
+          {essays.length === 0 && (
             <div className="text-center py-12">
               <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-semibold mb-2">No essays yet</h3>

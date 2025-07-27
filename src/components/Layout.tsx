@@ -2,7 +2,30 @@ import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { GraduationCap, BookOpen, BarChart3, User, LogIn } from "lucide-react";
 
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabaseClient";
+
 export const Layout = ({ children }: { children: React.ReactNode }) => {
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+    };
+
+    fetchUser();
+
+    // Optional: auto update on auth change
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user || null);
+    });
+
+    return () => {
+      listener?.subscription.unsubscribe();
+    };
+  }, []);
+
   const location = useLocation();
 
   const isActive = (path: string) => location.pathname === path;
@@ -15,35 +38,32 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
             <GraduationCap className="h-8 w-8" />
             EssayAlign
           </Link>
-          
+
           <nav className="hidden md:flex items-center gap-6">
-            <Link 
-              to="/" 
-              className={`text-sm font-medium transition-colors hover:text-primary ${
-                isActive("/") ? "text-primary" : "text-muted-foreground"
-              }`}
+            <Link
+              to="/"
+              className={`text-sm font-medium transition-colors hover:text-primary ${isActive("/") ? "text-primary" : "text-muted-foreground"
+                }`}
             >
               Home
             </Link>
-            <Link 
-              to="/dashboard" 
-              className={`text-sm font-medium transition-colors hover:text-primary ${
-                isActive("/dashboard") ? "text-primary" : "text-muted-foreground"
-              }`}
+            <Link
+              to="/dashboard"
+              className={`text-sm font-medium transition-colors hover:text-primary ${isActive("/dashboard") ? "text-primary" : "text-muted-foreground"
+                }`}
             >
               Dashboard
             </Link>
-            <Link 
-              to="/upload" 
-              className={`text-sm font-medium transition-colors hover:text-primary ${
-                isActive("/upload") ? "text-primary" : "text-muted-foreground"
-              }`}
+            <Link
+              to="/upload"
+              className={`text-sm font-medium transition-colors hover:text-primary ${isActive("/upload") ? "text-primary" : "text-muted-foreground"
+                }`}
             >
               Upload Essay
             </Link>
           </nav>
 
-          <div className="flex items-center gap-3">
+          {/* <div className="flex items-center gap-3">
             <Button variant="ghost" size="sm" asChild>
               <Link to="/login">
                 <LogIn className="h-4 w-4" />
@@ -53,6 +73,37 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
             <Button variant="default" size="sm" asChild>
               <Link to="/signup">Sign Up</Link>
             </Button>
+          </div> */}
+          <div className="flex items-center gap-3">
+            {user ? (
+              <>
+                <span className="text-sm text-muted-foreground">
+                  {user.user_metadata?.full_name || user.email}
+                </span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={async () => {
+                    await supabase.auth.signOut();
+                    window.location.reload(); // Or use navigate("/login") if you prefer
+                  }}
+                >
+                  Logout
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button variant="ghost" size="sm" asChild>
+                  <Link to="/login">
+                    <LogIn className="h-4 w-4" />
+                    Login
+                  </Link>
+                </Button>
+                <Button variant="default" size="sm" asChild>
+                  <Link to="/signup">Sign Up</Link>
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </header>
