@@ -12,7 +12,15 @@ import { useNavigate } from "react-router-dom";
 
 import { supabase } from "@/lib/supabaseClient";
 
-
+const ScoreItem = ({ label, score }: { label: string; score: number }) => {
+  const color = score >= 80 ? 'text-green-600' : score >= 60 ? 'text-yellow-500' : 'text-red-500';
+  return (
+    <div className="p-4 rounded border bg-muted/30 shadow-sm">
+      <p className="text-sm text-muted-foreground">{label}</p>
+      <p className={`text-2xl font-bold ${color}`}>{score}</p>
+    </div>
+  );
+};
 
 export const Upload = () => {
   const [essay, setEssay] = useState("");
@@ -257,15 +265,24 @@ const handleAnalyze = async () => {
             </Card>
 
             {feedback && (
-  <Card className="mt-6">
-    <CardHeader>
-      <CardTitle>AI Feedback</CardTitle>
-    </CardHeader>
-    <CardContent>
-      <p className="whitespace-pre-line">{feedback}</p>
-    </CardContent>
-  </Card>
-)}
+              <Card className="mt-6">
+                <CardHeader>
+                  <CardTitle>Essay Analysis Scorecard</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <ScoreItem label="Mission Alignment" score={scores.alignment} />
+                    <ScoreItem label="Values Match" score={scores.values} />
+                    <ScoreItem label="Tone & Voice" score={scores.tone} />
+                    <ScoreItem label="Improvement Potential" score={scores.improvement} />
+                  </div>
+                  <div className="mt-4">
+                    <h4 className="font-medium">Summary</h4>
+                    <p className="text-muted-foreground whitespace-pre-line">{feedback}</p>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </div>
 
           {/* Sidebar */}
