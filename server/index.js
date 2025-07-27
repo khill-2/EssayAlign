@@ -28,7 +28,8 @@ app.post('/analyze-essay', async (req, res) => {
     const { essay, college, user_id } = req.body;
 
     // const prompt = `Analyze this college essay for how well it aligns with ${college.name}'s mission: "${college.mission}"\n\nEssay:\n${essay}`;
-    const prompt = `You are an admissions expert. Analyze the following college essay for its alignment with ${college.name}'s mission: "${college.mission}".
+    const prompt = `You are an admissions expert. Analyze the following college essay for its alignment with ${college.name}'s mission: "${college.mission}". Be a tough grader. Make sure to give the most accurate and realistic feedback possible.
+    Be very descriptive for how the essay could improve and where the weak points lie.
 
     Return a JSON object with the following structure:
     {
@@ -42,27 +43,7 @@ app.post('/analyze-essay', async (req, res) => {
     Essay:
     ${essay}`;
 
-    // const result = await openai.chat.completions.create({
-    //   model: 'mistralai/mistral-7b-instruct',
-    //   messages: [{ role: 'user', content: prompt }],
-    // });
-
-    // const feedback = result.choices[0].message.content;
-
-    // const { data, error } = await supabase.from('essays').insert({
-    //   user_id,
-    //   college_name: college.name,
-    //   content: essay,
-    //   feedback,
-    //   created_at: new Date(),
-    // });
-
-    // if (error) {
-    //   console.error("Supabase insert error:", error);
-    //   return res.status(500).json({ error: error.message });
-    // }
-
-    // res.json({ feedback, saved: true });
+    // use the API response
     const result = await openai.chat.completions.create({
       model: 'gpt-3.5-turbo',
       messages: [{ role: 'user', content: prompt }],
@@ -77,17 +58,19 @@ app.post('/analyze-essay', async (req, res) => {
 
     const { alignmentScore, valuesScore, toneScore, improvementScore, summary } = parsed;
 
-    await supabase.from('essays').insert({
+    const { data, error } = await supabase.from('essays').insert({
       user_id,
       college_name: college.name,
       content: essay,
       feedback: summary,
-      alignment_score: alignmentScore,
-      values_score: valuesScore,
-      tone_score: toneScore,
-      improvement_score: improvementScore,
+      score: (alignmentScore + valuesScore + toneScore + improvementScore) / 4,
       created_at: new Date(),
     });
+
+    if (error) {
+      console.error("Supabase insert error:", error.message);
+      return res.status(500).json({ error: error.message });
+    }
 
     res.json({
       feedback: summary,
