@@ -13,7 +13,7 @@ app.use(express.json());
 
 // OpenAI setup
 // const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-const openai = new OpenAI({ 
+const openai = new OpenAI({
   apiKey: process.env.OPENROUTER_API_KEY,
   baseURL: 'https://openrouter.ai/api/v1'
 });
@@ -27,32 +27,80 @@ app.post('/analyze-essay', async (req, res) => {
   try {
     const { essay, college, user_id } = req.body;
 
-    const prompt = `Analyze this college essay for how well it aligns with ${college.name}'s mission: "${college.mission}"\n\nEssay:\n${essay}`;
+    // const prompt = `Analyze this college essay for how well it aligns with ${college.name}'s mission: "${college.mission}"\n\nEssay:\n${essay}`;
+    const prompt = `You are an admissions expert. Analyze the following college essay for its alignment with ${college.name}'s mission: "${college.mission}".
 
+    Return a JSON object with the following structure:
+    {
+      "alignmentScore": number (0-100),
+      "valuesScore": number (0-100),
+      "toneScore": number (0-100),
+      "improvementScore": number (0-100),
+      "summary": string (concise summary of strengths and weaknesses)
+    }
+
+    Essay:
+    ${essay}`;
+
+    // const result = await openai.chat.completions.create({
+    //   model: 'mistralai/mistral-7b-instruct',
+    //   messages: [{ role: 'user', content: prompt }],
+    // });
+
+    // const feedback = result.choices[0].message.content;
+
+    // const { data, error } = await supabase.from('essays').insert({
+    //   user_id,
+    //   college_name: college.name,
+    //   content: essay,
+    //   feedback,
+    //   created_at: new Date(),
+    // });
+
+    // if (error) {
+    //   console.error("Supabase insert error:", error);
+    //   return res.status(500).json({ error: error.message });
+    // }
+
+    // res.json({ feedback, saved: true });
     const result = await openai.chat.completions.create({
-      model: 'mistralai/mistral-7b-instruct',
+      model: 'gpt-3.5-turbo',
       messages: [{ role: 'user', content: prompt }],
     });
 
-    const feedback = result.choices[0].message.content;
+    let parsed;
+    try {
+      parsed = JSON.parse(result.choices[0].message.content);
+    } catch (err) {
+      return res.status(500).json({ error: "Failed to parse AI response." });
+    }
 
-    const { data, error } = await supabase.from('essays').insert({
+    const { alignmentScore, valuesScore, toneScore, improvementScore, summary } = parsed;
+
+    await supabase.from('essays').insert({
       user_id,
       college_name: college.name,
       content: essay,
-      feedback,
+      feedback: summary,
+      alignment_score: alignmentScore,
+      values_score: valuesScore,
+      tone_score: toneScore,
+      improvement_score: improvementScore,
       created_at: new Date(),
     });
 
-    if (error) {
-      console.error("Supabase insert error:", error);
-      return res.status(500).json({ error: error.message });
-    }
-
-    res.json({ feedback, saved: true });
+    res.json({
+      feedback: summary,
+      scores: {
+        alignment: alignmentScore,
+        values: valuesScore,
+        tone: toneScore,
+        improvement: improvementScore
+      }
+    });
   } catch (err) {
     console.error("Error during essay analysis:", err);
-    
+
     // Send a readable message to the frontend
     res.status(500).json({
       error: err?.message || "Unknown server error",

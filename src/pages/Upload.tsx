@@ -31,10 +31,17 @@ export const Upload = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
+  const [scores, setScores] = useState<{
+    alignment: number;
+    values: number;
+    tone: number;
+    improvement: number;
+  } | null>(null);
+
   // Mock colleges data
   const popularColleges = [
     "Harvard University",
-    "Stanford University", 
+    "Stanford University",
     "MIT",
     "Yale University",
     "Princeton University",
@@ -77,7 +84,7 @@ export const Upload = () => {
   //   }
 
   //   setIsAnalyzing(true);
-    
+
   //   // Simulate API call
   //   setTimeout(() => {
   //     setIsAnalyzing(false);
@@ -90,65 +97,65 @@ export const Upload = () => {
   // };
 
 
-const handleAnalyze = async () => {
-  if (!essay.trim() || !selectedCollege || !title.trim()) {
-    toast({
-      title: "Missing information",
-      description: "Please fill in all fields before analyzing",
-      variant: "destructive",
-    });
-    return;
-  }
+  const handleAnalyze = async () => {
+    if (!essay.trim() || !selectedCollege || !title.trim()) {
+      toast({
+        title: "Missing information",
+        description: "Please fill in all fields before analyzing",
+        variant: "destructive",
+      });
+      return;
+    }
 
-  setIsAnalyzing(true);
+    setIsAnalyzing(true);
 
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) {
-    toast({
-      title: "Please log in first",
-      description: "You must be authenticated to submit essays.",
-      variant: "destructive",
-    });
-    setIsAnalyzing(false);
-    return;
-  }
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      toast({
+        title: "Please log in first",
+        description: "You must be authenticated to submit essays.",
+        variant: "destructive",
+      });
+      setIsAnalyzing(false);
+      return;
+    }
 
-  try {
-    const res = await fetch("http://localhost:3001/analyze-essay", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        essay,
-        title,
-        user_id: user.id,
-        college: {
-          name: selectedCollege,
-          mission: "The mission of this college will go here temporarily." 
-        }
-      }),
-    });
+    try {
+      const res = await fetch("http://localhost:3001/analyze-essay", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          essay,
+          title,
+          user_id: user.id,
+          college: {
+            name: selectedCollege,
+            mission: "The mission of this college will go here temporarily."
+          }
+        }),
+      });
 
-    const json = await res.json();
+      const json = await res.json();
 
-    if (!res.ok) throw new Error(json.error || "Analysis failed");
+      if (!res.ok) throw new Error(json.error || "Analysis failed");
 
-    setFeedback(json.feedback);
+      setFeedback(json.feedback);
 
-    toast({
-      title: "Analysis Complete!",
-      description: "Your essay was successfully analyzed.",
-    });
+      toast({
+        title: "Analysis Complete!",
+        description: "Your essay was successfully analyzed.",
+      });
 
-  } catch (err: any) {
-    toast({
-      title: "Error analyzing essay",
-      description: err.message || "Unexpected error.",
-      variant: "destructive",
-    });
-  } finally {
-    setIsAnalyzing(false);
-  }
-};
+    } catch (err: any) {
+      toast({
+        title: "Error analyzing essay",
+        description: err.message || "Unexpected error.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
 
   const wordCount = essay.trim().split(/\s+/).filter(word => word.length > 0).length;
 
@@ -242,9 +249,9 @@ const handleAnalyze = async () => {
                 </div>
 
                 {/* Analyze Button */}
-                <Button 
-                  variant="hero" 
-                  size="lg" 
+                <Button
+                  variant="hero"
+                  size="lg"
                   className="w-full"
                   onClick={handleAnalyze}
                   disabled={isAnalyzing}
@@ -300,7 +307,7 @@ const handleAnalyze = async () => {
                     <p className="text-xs text-muted-foreground">How well your essay matches the college's mission</p>
                   </div>
                 </div>
-                
+
                 <div className="flex items-start gap-3">
                   <CheckCircle className="h-5 w-5 text-success mt-0.5" />
                   <div>
@@ -308,7 +315,7 @@ const handleAnalyze = async () => {
                     <p className="text-xs text-muted-foreground">Analysis of how you demonstrate core values</p>
                   </div>
                 </div>
-                
+
                 <div className="flex items-start gap-3">
                   <CheckCircle className="h-5 w-5 text-success mt-0.5" />
                   <div>
@@ -316,7 +323,7 @@ const handleAnalyze = async () => {
                     <p className="text-xs text-muted-foreground">Specific recommendations to strengthen your essay</p>
                   </div>
                 </div>
-                
+
                 <div className="flex items-start gap-3">
                   <CheckCircle className="h-5 w-5 text-success mt-0.5" />
                   <div>
