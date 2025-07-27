@@ -6,7 +6,7 @@ import { createClient } from '@supabase/supabase-js';
 import path from 'path';
 
 dotenv.config();
-console.log("OpenAI Key:", process.env.OPENAI_API_KEY?.slice(0, 8) + '...');
+// console.log("OpenAI Key:", process.env.OPENAI_API_KEY?.slice(0, 8) + '...');
 const app = express();
 app.use(cors());
 app.use(express.json());

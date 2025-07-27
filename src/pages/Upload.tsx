@@ -140,6 +140,7 @@ export const Upload = () => {
       if (!res.ok) throw new Error(json.error || "Analysis failed");
 
       setFeedback(json.feedback);
+      setScores(json.scores);
 
       toast({
         title: "Analysis Complete!",
@@ -271,7 +272,7 @@ export const Upload = () => {
               </CardContent>
             </Card>
 
-            {feedback && (
+            {feedback && scores && (
               <Card className="mt-6">
                 <CardHeader>
                   <CardTitle>Essay Analysis Scorecard</CardTitle>
