@@ -149,9 +149,9 @@ export const Dashboard = () => {
                   <div className="text-center">
                     <p className="text-sm font-medium">{essay.date}</p>
                     <div className="flex gap-2 mt-2">
-                      <Button variant="outline" size="sm">
+                      {/* <Button variant="outline" size="sm">
                         View
-                      </Button>
+                      </Button> */}
                       {essay === "analyzed" && (
                         <Button variant="ghost" size="sm">
                           <TrendingUp className="h-4 w-4" />

@@ -27,7 +27,7 @@ app.post('/analyze-essay', async (req, res) => {
     const { essay, college, user_id } = req.body;
 
     // const prompt = `Analyze this college essay for how well it aligns with ${college.name}'s mission: "${college.mission}"\n\nEssay:\n${essay}`;
-    const prompt = `You are an admissions expert. Analyze the following college essay for its alignment with ${college.name}'s mission: "${college.mission}". Be a tough grader. Make sure to give the most accurate and realistic feedback possible.
+    const prompt = `You are an admissions expert. Analyze the following college essay for its alignment with ${college.name}'s mission and core values. Be a tough grader. Make sure to give the most accurate and realistic feedback possible.
     Be very descriptive for how the essay could improve and where the weak points lie.
 
     Return a JSON object with the following structure:
@@ -55,13 +55,14 @@ app.post('/analyze-essay', async (req, res) => {
       return res.status(500).json({ error: "Failed to parse AI response." });
     }
 
-    const { alignmentScore, valuesScore, toneScore, improvementScore, summary } = parsed;
+    const { alignmentScore, valuesScore, toneScore, improvementScore, summary, title } = parsed;
 
     const { data, error } = await supabase.from('essays').insert({
       user_id,
       college_name: college.name,
       content: essay,
       feedback: summary,
+      title,
       score: (alignmentScore + valuesScore + toneScore + improvementScore) / 4,
       created_at: new Date(),
     });
