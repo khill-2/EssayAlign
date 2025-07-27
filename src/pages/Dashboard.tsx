@@ -12,27 +12,22 @@ export const Dashboard = () => {
 
   useEffect(() => {
     const fetchEssays = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
+      const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
       const { data, error } = await supabase
-        .from("essays")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false });
+        .from('essays')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(3);
 
-      if (error) {
-        console.error("Error fetching essays:", error);
-      } else {
-        setEssays(data);
-      }
+      if (!error) setEssays(data);
     };
 
     fetchEssays();
   }, []);
+
 
   const getScoreColor = (score: number) => {
     if (score >= 80) return "bg-success";
