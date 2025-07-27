@@ -110,6 +110,7 @@ export const Upload = () => {
     setIsAnalyzing(true);
 
     const { data: { user } } = await supabase.auth.getUser();
+    const email = user?.email;
     if (!user) {
       toast({
         title: "Please log in first",
@@ -127,6 +128,7 @@ export const Upload = () => {
         body: JSON.stringify({
           essay,
           title,
+          email: user.email,
           user_id: user.id,
           college: {
             name: selectedCollege,
