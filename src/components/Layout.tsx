@@ -62,18 +62,6 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
               Upload Essay
             </Link>
           </nav>
-
-          {/* <div className="flex items-center gap-3">
-            <Button variant="ghost" size="sm" asChild>
-              <Link to="/login">
-                <LogIn className="h-4 w-4" />
-                Login
-              </Link>
-            </Button>
-            <Button variant="default" size="sm" asChild>
-              <Link to="/signup">Sign Up</Link>
-            </Button>
-          </div> */}
           <div className="flex items-center gap-3">
             {user ? (
               <>
