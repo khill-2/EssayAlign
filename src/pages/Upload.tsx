@@ -124,7 +124,7 @@ export const Upload = () => {
     try {
       // const res = await fetch("http://localhost:3001/analyze-essay", {
       // const res = await fetch(`${import.meta.env.VITE_API_URL}/analyze-essay`, {
-      const res = await fetch("https://essay-align.onrender.com", {
+      const res = await fetch("https://essay-align.onrender.com/analyze-essay", {
 
         method: "POST",
         headers: { "Content-Type": "application/json" },
