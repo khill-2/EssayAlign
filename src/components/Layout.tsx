@@ -121,7 +121,7 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
             </div>
           </div>
           <div className="border-t border-border mt-8 pt-8 text-center text-sm text-muted-foreground">
-            © 2024 EssayAlign. All rights reserved.
+            © 2025 EssayAlign
           </div>
         </div>
       </footer>
