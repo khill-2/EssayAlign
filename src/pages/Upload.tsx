@@ -49,7 +49,22 @@ export const Upload = () => {
     "University of Pennsylvania",
     "Duke University",
     "Northwestern University",
-    "University of Chicago"
+    "University of Chicago",
+    "California Institute of Technology",
+    "University of California, Berkeley",
+    "University of Michigan",
+    "University of California, Los Angeles",
+    "Johns Hopkins University",
+    "University of California, San Diego",
+    "University of Southern California",
+    "University of Virginia",
+    "University of North Carolina at Chapel Hill",
+    "University of Texas at Austin",
+    "University of Washington",
+    "University of Wisconsin-Madison",
+    "University of Florida",
+    "University of Illinois at Urbana-Champaign",
+    "University of California, Santa Barbara",
   ];
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -72,29 +87,6 @@ export const Upload = () => {
       });
     }
   };
-
-  // const handleAnalyze = async () => {
-  //   if (!essay.trim() || !selectedCollege || !title.trim()) {
-  //     toast({
-  //       title: "Missing information",
-  //       description: "Please fill in all fields before analyzing",
-  //       variant: "destructive",
-  //     });
-  //     return;
-  //   }
-
-  //   setIsAnalyzing(true);
-
-  //   // Simulate API call
-  //   setTimeout(() => {
-  //     setIsAnalyzing(false);
-  //     toast({
-  //       title: "Analysis complete!",
-  //       description: "Your essay has been analyzed successfully",
-  //     });
-  //     navigate("/dashboard");
-  //   }, 3000);
-  // };
 
 
   const handleAnalyze = async () => {
