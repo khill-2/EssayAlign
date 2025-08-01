@@ -30,6 +30,7 @@ app.post('/analyze-essay', async (req, res) => {
     const prompt = `You are an admissions expert. Analyze the following college essay for its alignment with ${college.name}'s mission and core values. Be a tough grader. Make sure to give the most accurate and realistic feedback possible.
     Be very descriptive for how the essay could improve and where the weak points lie.
 
+    Respond with ONLY the raw JSON. Do NOT include any explanation, intro, or text outside the JSON object.
     Return a JSON object with the following structure:
     {
       "alignmentScore": number (0-100),
@@ -48,12 +49,27 @@ app.post('/analyze-essay', async (req, res) => {
       messages: [{ role: 'user', content: prompt }],
     });
 
+    // let parsed;
+    // try {
+    //   parsed = JSON.parse(result.choices[0].message.content);
+    // } catch (err) {
+    //   return res.status(500).json({ error: "Failed to parse AI response." });
+    // }
+
     let parsed;
+    const raw = result.choices?.[0]?.message?.content || "";
+
     try {
-      parsed = JSON.parse(result.choices[0].message.content);
+      const jsonStart = raw.indexOf("{");
+      const jsonEnd = raw.lastIndexOf("}");
+      const jsonString = raw.slice(jsonStart, jsonEnd + 1);
+
+      parsed = JSON.parse(jsonString);
     } catch (err) {
+      console.error("Failed to parse AI response:", raw); // helpful debug info
       return res.status(500).json({ error: "Failed to parse AI response." });
     }
+
 
     const { alignmentScore, valuesScore, toneScore, improvementScore, summary } = parsed;
 
