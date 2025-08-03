@@ -56,20 +56,6 @@ app.post('/analyze-essay', async (req, res) => {
       return res.status(500).json({ error: "Failed to parse AI response." });
     }
 
-    // let parsed;
-    // const raw = result.choices?.[0]?.message?.content || "";
-
-    // try {
-    //   const jsonStart = raw.indexOf("{");
-    //   const jsonEnd = raw.lastIndexOf("}");
-    //   const jsonString = raw.slice(jsonStart, jsonEnd + 1);
-
-    //   parsed = JSON.parse(jsonString);
-    // } catch (err) {
-    //   console.error("Failed to parse AI response:", raw); // helpful debug info
-    //   return res.status(500).json({ error: "Failed to parse AI response." });
-    // }
-
 
     const { alignmentScore, valuesScore, toneScore, improvementScore, summary } = parsed;
 
