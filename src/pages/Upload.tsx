@@ -127,7 +127,7 @@ export const Upload = () => {
           user_id: user.id,
           college: {
             name: selectedCollege,
-            mission: "The mission of this college will go here temporarily."
+            mission: `Mission of ${selectedCollege}`
           }
         }),
       });
